@@ -1,4 +1,3 @@
-# Compiler and Flags
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c99 -D_POSIX_C_SOURCE=200809L -O2 -D_GNU_SOURCE
 
