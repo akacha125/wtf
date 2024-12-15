@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "hash_table.h"
+#include "file_utils.h"
+#include "commands.h"
+#include <limits.h>
+#include <unistd.h>
+#include <libgen.h>
+
+
+#define MAX_INPUT_LENGTH 256
+
+
+void print_help() {
+    printf("Usage:\n");
+    printf("  wtf is <term>    - Get the definition of a term\n");
+    printf("  wtf add <term>:<definition> - Add a new term and definition to the dictionary\n");
+    printf("  wtf -h | --help  - Show this help menu\n");
+}
+
+int main(int argc, char *argv[]) {
+    const char *home_dir = getenv("HOME");
+    if (home_dir == NULL) {
+            fprintf(stderr, "Error: Unable to get home directory.\n");
+            return 1;  // Handle error if HOME directory is not found
+        }
+    // Construct the full path to the definitions file
+    char definitions_path[1024];
+    snprintf(definitions_path, sizeof(definitions_path), "%s/.wtf/res/definitions.txt", home_dir);
+    if (argc < 2) {
+        printf("Error: Missing arguments. Use `wtf -h` for help.\n");
+        return 1;
+    }
+
+    if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
+        print_help();
+        return 0;
+    }
+    // Load the dictionary into memory
+    HashTable *dictionary = create_hash_table(100);
+    if (!load_definitions(definitions_path, dictionary)) {
+        fprintf(stderr, "Error: Could not load definitions from file.\n");
+        return 1;
+    }
+
+    if (strcmp(argv[1], "is") == 0) {
+        if (argc < 3) {
+            printf("Error: No term provided. Use `wtf is <term>`.\n");
+            free_hash_table(dictionary);
+            return 1;
+        }
+
+        // Combine arguments to handle multi-word terms
+        char term[MAX_INPUT_LENGTH] = "";
+        for (int i = 2; i < argc; i++) {
+            strcat(term, argv[i]);
+            if (i < argc - 1) strcat(term, " "); // Add space between words
+        }
+
+        char *definition = hash_table_lookup(dictionary, term);
+        if (definition) {
+            printf("%s: %s\n", term, definition);
+        } else {
+            printf("Error: Term '%s' not found.\n", term);
+        }
+    } else if (strcmp(argv[1], "add") == 0) {
+        if (argc < 3) {
+            printf("Error: No term provided. Use `wtf add <term>:<definition>`.\n");
+            free_hash_table(dictionary);
+            return 1;
+        }
+
+        if (add_definition(definitions_path, argv[2])) {
+            printf("Definition added successfully.\n");
+        } else {
+            printf("Error: Could not add definition. Ensure the format is <term>:<definition>.\n");
+        }
+    } else {
+        printf("Error: Unknown command '%s'. Use `wtf -h` for help.\n", argv[1]);
+    }
+
+    // Free memory
+    free_hash_table(dictionary);
+    return 0;
+}
