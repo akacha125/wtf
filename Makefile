@@ -5,7 +5,6 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -D_POSIX_C_SOURCE=200809L -O2 -D_GNU_S
 # Source Files and Paths
 SRC = src/main.c src/hash_table.c src/file_utils.c src/commands.c
 OBJ = build/main.o build/hash_table.o build/file_utils.o build/commands.o
-OUTPUT = build/wtf
 
 # Architectures and Output Binaries
 ARCH := $(shell uname -m)
@@ -15,8 +14,18 @@ BINARY_I386 = build/wtf_i386
 # File to deploy
 DEFINITIONS_FILE = .wtf/res/definitions.txt
 
+# Dynamically set output based on architecture
+ifeq ($(ARCH), x86_64)
+OUTPUT = build/wtf_amd64
+else ifeq ($(ARCH), i386)
+OUTPUT = build/wtf_i386
+else
+OUTPUT = build/wtf
+endif
+
 # Default Target: Build for the current architecture
 all: $(OUTPUT)
+	
 
 # Build the binary from object files
 $(OUTPUT): $(OBJ)
