@@ -30,7 +30,7 @@ void hash_table_insert(HashTable *table, const char *key, const char *value) {
     table->table[index] = new_node;
 }
 
-// Lookup a key
+// Lookup a single key (kept for backward compatibility)
 char* hash_table_lookup(HashTable *table, const char *key) {
     unsigned int index = hash_function(key, table->size);
     HashNode *node = table->table[index];
@@ -41,6 +41,52 @@ char* hash_table_lookup(HashTable *table, const char *key) {
         node = node->next;
     }
     return NULL;
+}
+
+// New function to lookup all definitions for a key
+DefinitionList* hash_table_lookup_all(HashTable *table, const char *key) {
+    DefinitionList *list = malloc(sizeof(DefinitionList));
+    list->definitions = malloc(sizeof(char*) * 10);  // Initial capacity of 10
+    list->count = 0;
+    list->capacity = 10;
+
+    unsigned int index = hash_function(key, table->size);
+    HashNode *node = table->table[index];
+    
+    while (node) {
+        if (strcmp(node->key, key) == 0) {
+            // Resize if needed
+            if (list->count >= list->capacity) {
+                list->capacity *= 2;
+                list->definitions = realloc(list->definitions, sizeof(char*) * list->capacity);
+            }
+            
+            // Add the definition
+            list->definitions[list->count] = strdup(node->value);
+            list->count++;
+        }
+        node = node->next;
+    }
+
+    // If no definitions found, free and return NULL
+    if (list->count == 0) {
+        free(list->definitions);
+        free(list);
+        return NULL;
+    }
+
+    return list;
+}
+
+// Free the definition list
+void free_definition_list(DefinitionList *list) {
+    if (list) {
+        for (int i = 0; i < list->count; i++) {
+            free(list->definitions[i]);
+        }
+        free(list->definitions);
+        free(list);
+    }
 }
 
 // Free the hash table

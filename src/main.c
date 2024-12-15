@@ -58,12 +58,15 @@ int main(int argc, char *argv[]) {
             if (i < argc - 1) strcat(term, " "); // Add space between words
         }
 
-        char *definition = hash_table_lookup(dictionary, term);
-        if (definition) {
-            printf("%s: %s\n", term, definition);
-        } else {
-            printf("Error: Term '%s' not found.\n", term);
-        }
+        DefinitionList *definitions = hash_table_lookup_all(dictionary, term);
+            if (definitions) {
+                for (int i = 0; i < definitions->count; i++) {
+                    printf("%s: %s\n",term, definitions->definitions[i]);
+                }
+                free_definition_list(definitions);
+            } else {
+                printf("Error: Term '%s' not found.\n", term);
+            }
     } else if (strcmp(argv[1], "add") == 0) {
         if (argc < 3) {
             printf("Error: No term provided. Use `wtf add <term>:<definition>`.\n");
