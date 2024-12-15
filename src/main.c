@@ -65,25 +65,51 @@ int main(int argc, char *argv[]) {
                 }
                 free_definition_list(definitions);
             } else {
-                printf("Error: Term '%s' not found.\n", term);
+                printf("Lol I don't know what '%s' means.\n", term);
             }
     } else if (strcmp(argv[1], "add") == 0) {
-        if (argc < 3) {
-            printf("Error: No term provided. Use `wtf add <term>:<definition>`.\n");
-            free_hash_table(dictionary);
-            return 1;
-        }
-
-        if (add_definition(definitions_path, argv[2])) {
-            printf("Definition added successfully.\n");
-        } else {
-            printf("Error: Could not add definition. Ensure the format is <term>:<definition>.\n");
-        }
-    } else {
-        printf("Error: Unknown command '%s'. Use `wtf -h` for help.\n", argv[1]);
-    }
-
-    // Free memory
-    free_hash_table(dictionary);
-    return 0;
-}
+           if (argc < 3) {
+               printf("Error: No term provided. Use `wtf add <term>:<definition>`.\n");
+               free_hash_table(dictionary);
+               return 1;
+           }
+   
+           // Capture the full input string for term and definition
+           char input[MAX_INPUT_LENGTH] = "";
+           for (int i = 2; i < argc; i++) {
+               strcat(input, argv[i]);
+               if (i < argc - 1) strcat(input, " "); // Add spaces between words
+           }
+   
+           // Split input into term and definition using ':' as delimiter
+           char *term = strtok(input, ":");
+           char *definition = strtok(NULL, "");
+   
+           if (!term || !definition) {
+               printf("Error: Invalid format. Use `wtf add <term>:<definition>`.\n");
+               free_hash_table(dictionary);
+               return 1;
+           }
+   
+           // Add the term and definition to the dictionary
+           hash_table_insert(dictionary, term, definition);
+   
+           // Save the term and definition to the file
+           FILE *file = fopen(definitions_path, "a");
+           if (!file) {
+               fprintf(stderr, "Error: Could not open file %s for appending.\n", definitions_path);
+               free_hash_table(dictionary);
+               return 1;
+           }
+           fprintf(file, "%s:%s\n", term, definition);
+           fclose(file);
+   
+           printf("Definition added successfully.\n");
+       } else {
+           printf("Error: Unknown command '%s'. Use `wtf -h` for help.\n", argv[1]);
+       }
+   
+       // Free memory
+       free_hash_table(dictionary);
+       return 0;
+   }
