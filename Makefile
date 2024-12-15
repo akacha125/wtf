@@ -7,15 +7,29 @@ SRC = src/main.c src/hash_table.c src/file_utils.c src/commands.c
 OBJ = build/main.o build/hash_table.o build/file_utils.o build/commands.o
 OUTPUT = build/wtf
 
+# Architectures and Output Binaries
+ARCH := $(shell uname -m)
+BINARY_AMD64 = build/wtf_amd64
+BINARY_I386 = build/wtf_i386
+
 # File to deploy
 DEFINITIONS_FILE = .wtf/res/definitions.txt
 
-# Default Target: Build the binary
+# Default Target: Build for the current architecture
 all: $(OUTPUT)
 
 # Build the binary from object files
 $(OUTPUT): $(OBJ)
 	$(CC) $(OBJ) -o $(OUTPUT)
+
+# Build for specific architectures
+amd64: CFLAGS += -march=x86-64
+amd64: $(OBJ)
+	$(CC) $(OBJ) -o $(BINARY_AMD64)
+
+i386: CFLAGS += -m32
+i386: $(OBJ)
+	$(CC) $(OBJ) -o $(BINARY_I386)
 
 # Compile each source file into an object file
 build/%.o: src/%.c
@@ -24,16 +38,23 @@ build/%.o: src/%.c
 
 # Clean: Remove object files, the binary, and copied definitions file
 clean:
-	rm -f build/*.o build/$(DEFINITIONS_FILE) $(OUTPUT)
+	rm -f build/*.o build/wtf* $(OUTPUT)
 
 # Determine the correct home directory
 ACTUAL_USER := $(shell who am i | awk '{print $$1}')
 ACTUAL_HOME := $(shell eval echo ~$(ACTUAL_USER))
 
+# Install target: Detect architecture and install the correct binary
 install: all
 	@echo "Installing wtf..."
-	@sudo mkdir -p /usr/local/bin
-	@sudo cp $(OUTPUT) /usr/local/bin/wtf
+ifeq ($(ARCH), x86_64)
+	@sudo cp $(BINARY_AMD64) /usr/local/bin/wtf
+else ifeq ($(ARCH), i386)
+	@sudo cp $(BINARY_I386) /usr/local/bin/wtf
+else
+	@echo "Unsupported architecture: $(ARCH)"
+	@exit 1
+endif
 	@mkdir -p $(ACTUAL_HOME)/.wtf/res
 	@cp -r .wtf $(ACTUAL_HOME)/
 	@cp $(DEFINITIONS_FILE) $(ACTUAL_HOME)/.wtf/res/
@@ -50,7 +71,9 @@ uninstall:
 # Help: Show available Makefile targets
 help:
 	@echo "Available targets:"
-	@echo "  all       - Build the 'wtf' binary and copy the definitions file"
-	@echo "  clean     - Remove all object files, binaries, and the copied definitions file"
-	@echo "  install   - Install 'wtf' and the definitions file globally"
-	@echo "  uninstall - Uninstall 'wtf'
+	@echo "  all       - Build the 'wtf' binary for the current architecture"
+	@echo "  amd64     - Build the binary for AMD64 architecture"
+	@echo "  i386      - Build the binary for i386 (32-bit) architecture"
+	@echo "  clean     - Remove all object files and binaries"
+	@echo "  install   - Install 'wtf' for the current architecture"
+	@echo "  uninstall - Uninstall 'wtf'"
