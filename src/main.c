@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include "hash_table.h"
 #include "file_utils.h"
@@ -60,13 +61,42 @@ int main(int argc, char *argv[]) {
 
         DefinitionList *definitions = hash_table_lookup_all(dictionary, term);
             if (definitions) {
-                for (int i = 0; i < definitions->count; i++) {
-                    printf("%s: %s\n",term, definitions->definitions[i]);
+                // Find the ORIGINAL key from the hash table
+                for (int index = 0; index < dictionary->size; index++) {
+                    for (HashNode *current = dictionary->table[index]; current != NULL; current = current->next) {
+                        // Case-insensitive comparison of the input term
+                        char *lower_input = strdup(term);
+                        char *lower_current_key = strdup(current->key);
+                        
+                        // Convert both to lowercase for comparison
+                        for (int j = 0; lower_input[j]; j++) 
+                            lower_input[j] = tolower(lower_input[j]);
+                        for (int j = 0; lower_current_key[j]; j++) 
+                            lower_current_key[j] = tolower(lower_current_key[j]);
+                        
+                        // If keys match
+                        if (strcmp(lower_input, lower_current_key) == 0) {
+                            // Use the ORIGINAL key from the hash table
+                            for (int k = 0; k < definitions->count; k++) {
+                                printf("%s: %s\n", current->key, definitions->definitions[k]);
+                            }
+                            
+                            // Free temporary lowercase strings
+                            free(lower_input);
+                            free(lower_current_key);
+                            break;
+                        }
+                        
+                        // Free temporary lowercase strings
+                        free(lower_input);
+                        free(lower_current_key);
+                    }
                 }
+                
                 free_definition_list(definitions);
             } else {
                 printf("Lol I don't know what '%s' means.\n", term);
-            }
+        }
     } else if (strcmp(argv[1], "add") == 0) {
            if (argc < 3) {
                printf("Error: No term provided. Use `wtf add <term>:<definition>`.\n");
