@@ -78,9 +78,9 @@ int main(int argc, char *argv[]) {
                         if (strcmp(lower_input, lower_current_key) == 0) {
                             // Use the ORIGINAL key from the hash table
                             for (int k = 0; k < definitions->count; k++) {
-                                printf("%s: %s\n", current->key, definitions->definitions[k]);
+                                    printf("%s: %s\n", definitions->keys[k], definitions->definitions[k]);
                             }
-                            
+                            free_definition_list(definitions);
                             // Free temporary lowercase strings
                             free(lower_input);
                             free(lower_current_key);

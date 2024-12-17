@@ -17,9 +17,13 @@ typedef struct {
 // New structure to hold multiple definitions
 typedef struct {
     char **definitions;
+    char **keys;  // New field to store original keys
     int count;
     int capacity;
 } DefinitionList;
+
+
+
 
 // Function prototypes
 unsigned int hash_function(const char *key, int size);
