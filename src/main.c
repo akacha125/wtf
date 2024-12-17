@@ -60,42 +60,49 @@ int main(int argc, char *argv[]) {
         }
 
         DefinitionList *definitions = hash_table_lookup_all(dictionary, term);
-            if (definitions) {
-                // Find the ORIGINAL key from the hash table
+        if (definitions) {
+            int match_found = 0;
+            
+            // Safely print definitions and track whether a match was found
+            for (int k = 0; k < definitions->count; k++) {
+                // Find the matching original key for each definition
                 for (int index = 0; index < dictionary->size; index++) {
+                    int inner_match = 0;
                     for (HashNode *current = dictionary->table[index]; current != NULL; current = current->next) {
-                        // Case-insensitive comparison of the input term
-                        char *lower_input = strdup(term);
-                        char *lower_current_key = strdup(current->key);
+                        // Case-insensitive comparison
+                        char *lower_input = safe_lowercase(term);
+                        char *lower_current_key = safe_lowercase(current->key);
                         
-                        // Convert both to lowercase for comparison
-                        for (int j = 0; lower_input[j]; j++) 
-                            lower_input[j] = tolower(lower_input[j]);
-                        for (int j = 0; lower_current_key[j]; j++) 
-                            lower_current_key[j] = tolower(lower_current_key[j]);
-                        
-                        // If keys match
-                        if (strcmp(lower_input, lower_current_key) == 0) {
-                            // Use the ORIGINAL key from the hash table
-                            for (int k = 0; k < definitions->count; k++) {
-                                    printf("%s: %s\n", definitions->keys[k], definitions->definitions[k]);
+                        if (lower_input && lower_current_key) {
+                            // Check if the current definition matches the key
+                            if (strcmp(lower_input, lower_current_key) == 0 && 
+                                strcmp(definitions->definitions[k], current->value) == 0) {
+                                printf("%s: %s\n", current->key, definitions->definitions[k]);
+                                inner_match = 1;
+                                match_found = 1;
                             }
-                            free_definition_list(definitions);
+                            
                             // Free temporary lowercase strings
                             free(lower_input);
                             free(lower_current_key);
-                            break;
+                            
+                            if (inner_match) break;
                         }
-                        
-                        // Free temporary lowercase strings
-                        free(lower_input);
-                        free(lower_current_key);
                     }
+                    
+                    if (inner_match) break;
                 }
-                
-                free_definition_list(definitions);
-            } else {
+            }
+            
+            // Always free the definition list
+            free_definition_list(definitions);
+            
+            // If no match was found (this should be rare given the lookup_all function)
+            if (!match_found) {
                 printf("Lol I don't know what '%s' means.\n", term);
+            }
+        } else {
+            printf("Lol I don't know what '%s' means.\n", term);
         }
     } else if (strcmp(argv[1], "add") == 0) {
            if (argc < 3) {

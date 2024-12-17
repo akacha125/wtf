@@ -105,6 +105,7 @@ char* safe_lowercase(const char *str) {
 }
 
 // Updated hash_table_lookup_all function
+// Modify the hash_table_lookup_all function in after_hash_table.c
 DefinitionList* hash_table_lookup_all(HashTable *table, const char *key) {
     if (!table || !key) return NULL;
 
@@ -138,10 +139,8 @@ DefinitionList* hash_table_lookup_all(HashTable *table, const char *key) {
                 // Determine match based on pass
                 int match = 0;
                 if (pass == 0) {
-                    // First pass: exact case match
                     match = (strcmp(current->key, key) == 0);
                 } else {
-                    // Second pass: case-insensitive match, avoiding exact matches from first pass
                     match = (strcmp(lower_current_key, lower_search_key) == 0 && 
                              strcmp(current->key, key) != 0);
                 }
@@ -206,12 +205,12 @@ DefinitionList* hash_table_lookup_all(HashTable *table, const char *key) {
         free(unique_keys);
         return NULL;
     }
-
+    
     result->definitions = unique_definitions;
-    result->keys = unique_keys;
+    result->keys = unique_keys;  // Ensure keys are set
     result->count = unique_count;
-    result->capacity = unique_count;
-
+    result->capacity = 100;
+    
     return result;
 }
 
