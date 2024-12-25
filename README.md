@@ -8,7 +8,7 @@ A lightning-fast command-line dictionary tool for Linux that helps you look up a
 <br>
 <br>
 
-## 🚀 Features
+## 🚀 Features:
 
 - **Quick Term Lookup**: Get definitions instantly
 - **Add Custom Definitions**: Add your own terms and definitions
@@ -18,7 +18,7 @@ A lightning-fast command-line dictionary tool for Linux that helps you look up a
 <br>
 <br>
 
-## 📦 Installation
+## 📦 Installation:
 <br>
 
 ### Option 1: Install from Release (Recommended)
@@ -51,7 +51,7 @@ sudo make install
 <br>
 <br>
 
-## 🎯 How to Use
+## 🎯 How to Use:
 - **Looking up a Term**
 ```
 wtf is Linux
@@ -70,13 +70,13 @@ wtf -h
 
 
 
-## 🔧 System Requirements
+## 🔧 System Requirements:
 - **Linux** operating system
 - Supports both **64-bit (amd64)** and **32-bit (i386)** architectures
 <br>
 <br>
 
-## 📁 File Locations
+## 📁 File Locations:
 ```bash
 # Definitions file
 ~/.wtf/res/definitions.txt
@@ -88,7 +88,7 @@ wtf -h
 <br>
 <br>
 
-## 🤝 Contributing
+## 🤝 Contributing:
 
 **1. Fork the repository**<br>
 **2. Create your feature branch** *(`git checkout -b feature/amazing-feature`)*<br>
@@ -99,7 +99,7 @@ wtf -h
 <br>
 <br>
 
-## 📄 License
+## 📄 License:
 
 This project is open source and available under the [MIT License](LICENSE).
 
@@ -107,7 +107,7 @@ This project is open source and available under the [MIT License](LICENSE).
 <br>
 
 
-## ✨ Support
+## ✨ Support:
 
 - Create an [Issue](https://github.com/AnuragBhaskarya/wtf/issues) for bug reports or feature requests
 - Star the repository if you find it useful!
